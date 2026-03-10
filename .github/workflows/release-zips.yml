@@ -16,6 +16,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name }}
 
       - name: Extract versions and create versions.json
         run: |
@@ -25,10 +27,10 @@ jobs:
             if [[ ! -d "$dir" ]]; then continue; fi
             ver="0.0.0"
             if [[ -f "$dir/CSXS/manifest.xml" ]]; then
-              ver=$(sed -n 's/.*ExtensionBundleVersion="\([^"]*\)".*/\1/p' "$dir/CSXS/manifest.xml" | head -1)
+              ver=$(grep -oE 'ExtensionBundleVersion="[^"]+' "$dir/CSXS/manifest.xml" | cut -d'"' -f2 | head -1)
             fi
-            if [[ -z "$ver" || "$ver" == *"ExtensionBundleVersion"* ]] && [[ -f "$dir/manifest.json" ]]; then
-              ver=$(sed -n 's/.*"version"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' "$dir/manifest.json" | head -1)
+            if [[ -z "$ver" || "$ver" == "0.0.0" ]] && [[ -f "$dir/manifest.json" ]]; then
+              ver=$(grep -oE '"version"[[:space:]]*:[[:space:]]*"[^"]+' "$dir/manifest.json" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
             fi
             [[ -z "$ver" ]] && ver="0.0.0"
             [[ -n "$entries" ]] && entries="$entries,"
