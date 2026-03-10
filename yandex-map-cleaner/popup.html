@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #1a1a1a;
+      --surface: #242424;
+      --surface-hover: #2e2e2e;
+      --border: #333333;
+      --text-primary: #ffffff;
+      --text-secondary: #999999;
+      --accent: #fc3f1d;
+      --radius: 10px;
+    }
+
+    :root.light {
+      --bg: #f5f5f5;
+      --surface: #ffffff;
+      --surface-hover: #ebebeb;
+      --border: #e0e0e0;
+      --text-primary: #1a1a1a;
+      --text-secondary: #777777;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Noto Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      width: 260px;
+      padding: 12px;
+      user-select: none;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 14px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      width: 30px;
+      height: 30px;
+      background: var(--accent);
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+      font-family: 'Noto Sans', sans-serif;
+    }
+
+    .header-text .title {
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+
+    .header-text .sub {
+      font-size: 10px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .section-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin: 12px 0 5px 2px;
+    }
+
+    .btn {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text-primary);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 9px 12px;
+      cursor: pointer;
+      transition: background 0.12s, border-color 0.12s, transform 0.08s;
+      margin-bottom: 4px;
+    }
+
+    .btn:last-of-type { margin-bottom: 0; }
+
+    .btn:hover {
+      background: var(--surface-hover);
+      border-color: #444;
+    }
+
+    .btn:active {
+      transform: scale(0.975);
+    }
+
+    .btn svg {
+      width: 15px;
+      height: 15px;
+      fill: var(--text-secondary);
+      flex-shrink: 0;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 10px 0;
+    }
+
+    .btn-ghost {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text-secondary);
+      font-family: inherit;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 7px 12px;
+      cursor: pointer;
+      transition: background 0.12s, color 0.12s;
+    }
+
+    .btn-ghost:hover {
+      background: var(--surface);
+      color: var(--text-primary);
+    }
+
+    .btn-ghost svg {
+      width: 12px;
+      height: 12px;
+      fill: currentColor;
+    }
+
+    #diagnostic-output {
+      font-size: 9.5px;
+      font-family: 'Courier New', monospace;
+      white-space: pre-wrap;
+      max-height: 180px;
+      overflow: auto;
+      margin-top: 8px;
+      display: none;
+      background: #111;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 10px;
+      color: #888;
+      line-height: 1.55;
+      user-select: text;
+      -webkit-user-select: text;
+      cursor: text;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="logo">Я</div>
+    <div class="header-text">
+      <div class="title">Map — Cleaner</div>
+      <div class="sub">Управление интерфейсом</div>
+    </div>
+  </div>
+
+  <div class="section-label">Вид</div>
+
+  <button id="toggle-ui" class="btn">
+    <svg viewBox="0 0 16 16"><path d="M1 3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v2H1V3zm0 3h6v7a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6zm7 0h7v3h-7V6zm0 4h7v3h-6a1 1 0 0 1-1-1v-2z"/></svg>
+    Показать / скрыть UI
+  </button>
+
+  <button id="toggle-tilt" class="btn">
+    <svg viewBox="0 0 16 16"><path d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zm0 1.5a6.5 6.5 0 0 1 4.47 11.2L3.3 3.53A6.47 6.47 0 0 1 8 1.5zM3.08 4.6l9.32 9.32A6.5 6.5 0 0 1 3.08 4.6z"/></svg>
+    Режим 2D / 3D
+  </button>
+
+  <div class="section-label">Оформление</div>
+
+  <button id="toggle-branch" class="btn">
+    <svg viewBox="0 0 16 16"><path d="M11.5 2a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3M10 3.5a2.5 2.5 0 1 1 5 0 2.5 2.5 0 0 1-5 0M4.5 2a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3M3 3.5a2.5 2.5 0 1 1 5 0 2.5 2.5 0 0 1-5 0M4.5 11a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3M3 12.5a2.5 2.5 0 1 1 5 0 2.5 2.5 0 0 1-5 0M4.5 5.5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5M11.5 6.5a.5.5 0 0 1 .5.5v1h-1V7a.5.5 0 0 1 .5-.5m-3.5 1a2.5 2.5 0 0 1 5 0v3.5a.5.5 0 0 1-1 0V7.5a1.5 1.5 0 0 0-3 0z"/></svg>
+    PPOI вкл / выкл
+  </button>
+
+  <button id="toggle-theme" class="btn">
+    <svg viewBox="0 0 16 16"><path d="M8 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/></svg>
+    Тема День / Ночь
+  </button>
+
+  <div class="divider"></div>
+
+  <button id="diagnostic" class="btn-ghost">
+    <svg viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.45-.083.082-.38 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/></svg>
+    Диагностика
+  </button>
+
+  <a id="feedback" href="https://forms.yandex.ru/u/696f2eb6068ff088f7e89e2e/?project_key_id=3i9und" target="_blank" class="btn-ghost" style="text-decoration:none;margin-top:4px;">
+    <svg viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16zM4.5 5a.5.5 0 0 0 0 1h5.793L8.146 9.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 5H4.5z"/></svg>
+    Обратная связь
+  </a>
+  <pre id="diagnostic-output"></pre>
+
+  <script src="popup.js"></script>
+  <script>
+    // Синхронизируем тему popup с картой
+    function applyPopupTheme(theme) {
+      if (theme === 'light') {
+        document.documentElement.classList.add('light');
+      } else {
+        document.documentElement.classList.remove('light');
+      }
+      localStorage.setItem('ymc-theme', theme);
+    }
+
+    // Восстанавливаем тему из прошлой сессии
+    const saved = localStorage.getItem('ymc-theme');
+    if (saved) applyPopupTheme(saved);
+
+    // Слушаем сообщения от content script
+    chrome.runtime.onMessage.addListener((msg) => {
+      if (msg.type === 'ymc-theme-changed') {
+        applyPopupTheme(msg.theme);
+      }
+    });
+  </script>
+</body>
+</html>
