@@ -1,8 +1,7 @@
-# Создаёт ZIP каждой утилиты и прикрепляет к релизу.
-# Триггер: публикация релиза (Release → Create new release → Publish).
-# ZIP-архивы появятся в Assets релиза.
-# Если ошибка "Resource not accessible": Settings → Actions → General →
-#   Workflow permissions → Read and write permissions.
+# Создаёт ZIP и прикрепляет к релизу.
+# Формат тега: UtilityName-v1.0.001 — зипуется только эта папка.
+# Легаси (v1.0 без префикса) — зипуются все папки.
+# Триггер: gh release create AETimeTracker-v1.0.002 ...
 
 name: Release ZIPs
 
@@ -19,20 +18,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Create ZIP for each utility
-        run: |
-          for dir in */; do
-            name="${dir%/}"
-            # Пропускаем служебные папки
-            [[ "$name" == .* ]] && continue
-            [[ "$name" == "node_modules" ]] && continue
-            zip -r "${name}.zip" "$name"
-          done
-
-      - name: Upload ZIPs to release
+      - name: Create and upload ZIP
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.event.release.tag_name }}
         run: |
-          for f in *.zip; do
-            gh release upload "${{ github.event.release.tag_name }}" "$f" --clobber
-          done
+          if [[ "$TAG" =~ ^([A-Za-z0-9_-]+)-v[0-9] ]]; then
+            dir="${BASH_REMATCH[1]}"
+            if [[ -d "$dir" ]] && [[ "$dir" != ".github" ]]; then
+              zip -r "${dir}.zip" "$dir"
+              gh release upload "$TAG" "${dir}.zip" --clobber
+              echo "Uploaded ${dir}.zip for $TAG"
+            else
+              echo "Folder $dir not found"
+              exit 1
+            fi
+          else
+            for d in */; do
+              name="${d%/}"
+              [[ "$name" == .* ]] && continue
+              [[ "$name" == "node_modules" ]] && continue
+              zip -r "${name}.zip" "$name"
+              gh release upload "$TAG" "${name}.zip" --clobber
+            done
+          fi

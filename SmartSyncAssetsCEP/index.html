@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Smart Sync Assets</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="panel">
+        <div class="status-row">
+            <span id="synced">Синхронизировано: 0</span>
+            <span id="unsynced">Не синхронизировано: 0</span>
+        </div>
+        <button type="button" class="btn-sync" id="syncBtn">Sync</button>
+        <label class="checkbox-row">
+            <input type="checkbox" id="moveCheck" />
+            <span>Удалить дубликаты</span>
+        </label>
+        <div class="footer">
+            <a href="#" id="help">Help</a>
+            <a href="#" id="feedback">Отзыв</a>
+            <span id="updateHint" class="update-hint" style="display:none"></span>
+        </div>
+    </div>
+    <script src="lib/CSInterface.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>
