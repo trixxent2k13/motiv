@@ -6,18 +6,21 @@
 (function() {
     'use strict';
 
+    function escapeStr(s) {
+        if (s == null) return '';
+        var t = String(s).replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\r/g, '').replace(/\n/g, '\\n');
+        return t;
+    }
+
     function getProjectState() {
         try {
-            if (!app.project) return JSON.stringify({ hasProject: false, path: null });
+            if (!app.project) return '{"hasProject":false,"path":null,"saved":false}';
             var f = app.project.file;
-            if (!f) return JSON.stringify({ hasProject: true, path: null, saved: false });
-            return JSON.stringify({
-                hasProject: true,
-                path: f.fsName,
-                saved: true
-            });
+            if (!f) return '{"hasProject":true,"path":null,"saved":false}';
+            var path = f.fsName;
+            return '{"hasProject":true,"path":"' + escapeStr(path) + '","saved":true}';
         } catch (e) {
-            return JSON.stringify({ hasProject: false, path: null, error: e.toString() });
+            return '{"hasProject":false,"path":null,"saved":false,"error":"' + escapeStr(e.toString()) + '"}';
         }
     }
 
