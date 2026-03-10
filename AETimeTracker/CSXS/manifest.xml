@@ -22,7 +22,7 @@
                     <ScriptPath>./jsx/host.jsx</ScriptPath>
                 </Resources>
                 <Lifecycle>
-                    <AutoVisible>false</AutoVisible>
+                    <AutoVisible>true</AutoVisible>
                 </Lifecycle>
                 <UI>
                     <Type>Panel</Type>
