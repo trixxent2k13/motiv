@@ -6,7 +6,7 @@
 (function() {
     'use strict';
 
-    var VERSION = '1.0.001';
+    var VERSION = '1.0.002';
     var UTILITY_ID = 'AETimeTracker';
     var RELEASES_API = 'https://api.github.com/repos/trixxent2k13/motiv/releases';
 
@@ -34,6 +34,8 @@
     var debugLogEl = document.getElementById('debugLog');
     var debugCopyBtn = document.getElementById('debugCopy');
     var updateHintEl = document.getElementById('updateHint');
+    var versionEl = document.getElementById('versionDisplay');
+    if (versionEl) versionEl.textContent = 'v' + VERSION;
 
     function debug(msg) {
         var d = new Date();

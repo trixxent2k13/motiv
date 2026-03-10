@@ -67,3 +67,7 @@ body {
     font-size: 10px;
     color: #81c784;
 }
+.footer .version {
+    font-size: 10px;
+    color: #666;
+}

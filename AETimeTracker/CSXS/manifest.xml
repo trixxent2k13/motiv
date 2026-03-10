@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ExtensionManifest Version="7.0" ExtensionBundleId="com.trixxent.aetimetracker" ExtensionBundleVersion="1.0.001" ExtensionBundleName="AE Time Tracker">
+<ExtensionManifest Version="7.0" ExtensionBundleId="com.trixxent.aetimetracker" ExtensionBundleVersion="1.0.002" ExtensionBundleName="AE Time Tracker">
     <ExtensionList>
-        <Extension Id="com.trixxent.aetimetracker.panel" Version="1.0.001"/>
+        <Extension Id="com.trixxent.aetimetracker.panel" Version="1.0.002"/>
     </ExtensionList>
     <ExecutionEnvironment>
         <HostList>

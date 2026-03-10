@@ -87,6 +87,10 @@ body {
 .footer a.feedback-done {
     color: #81c784;
 }
+.footer .version {
+    font-size: 10px;
+    color: #666;
+}
 
 /* Режим отладки */
 .debug-panel {
