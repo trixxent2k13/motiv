@@ -11,6 +11,8 @@ on:
 jobs:
   zip-and-upload:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # нужно для загрузки assets в релиз
     steps:
       - uses: actions/checkout@v4
 
