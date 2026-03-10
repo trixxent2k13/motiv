@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>AE Time Tracker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="panel">
+        <div class="status" id="status">Нет проекта</div>
+        <div class="project" id="project"></div>
+        <div class="timer-row">
+            <span class="timer" id="timer">--:--:--</span>
+            <button type="button" class="btn-pause" id="pauseBtn" title="Приостановить отслеживание">Пауза</button>
+        </div>
+        <div class="session" id="session"></div>
+        <div class="footer">
+            <a href="#" id="feedback">Отзыв</a>
+        </div>
+    </div>
+    <script src="lib/CSInterface.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>

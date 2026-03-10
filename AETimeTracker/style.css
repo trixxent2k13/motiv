@@ -1,0 +1,78 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 12px;
+    background: #2b2b2b;
+    color: #e0e0e0;
+    padding: 8px;
+}
+.panel {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.status {
+    font-size: 10px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.project {
+    font-size: 11px;
+    color: #aaa;
+    word-break: break-all;
+    max-height: 32px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.timer-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.timer {
+    font-size: 22px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: #4fc3f7;
+}
+.timer-row .timer.paused {
+    color: #888;
+}
+.btn-pause {
+    font-size: 10px;
+    padding: 4px 8px;
+    background: #444;
+    border: 1px solid #555;
+    color: #ccc;
+    cursor: pointer;
+    border-radius: 3px;
+}
+.btn-pause:hover {
+    background: #555;
+    color: #fff;
+}
+.btn-pause:disabled {
+    opacity: 0.5;
+    cursor: default;
+}
+.session {
+    font-size: 10px;
+    color: #666;
+}
+.footer {
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px solid #333;
+}
+.footer a {
+    color: #666;
+    text-decoration: none;
+    font-size: 10px;
+}
+.footer a:hover {
+    color: #4fc3f7;
+}
+.footer a.feedback-done {
+    color: #81c784;
+}
