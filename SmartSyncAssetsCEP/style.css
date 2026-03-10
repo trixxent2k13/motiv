@@ -67,6 +67,12 @@ body {
     font-size: 10px;
     color: #81c784;
 }
+.update-hint a {
+    color: inherit;
+}
+.update-hint a:hover {
+    color: #81c784;
+}
 .footer .version {
     font-size: 10px;
     color: #666;
