@@ -272,11 +272,15 @@ if (diagnosticBtn) {
   console.error("Кнопка 'diagnostic' не найдена в popup.html");
 }
 
-// Проверка обновлений
+// Версия и проверка обновлений
 (function() {
-  const VERSION = '1.0.001';
+  const manifest = chrome.runtime.getManifest();
+  const VERSION = (manifest && manifest.version) ? manifest.version : '0.0.0';
   const UTILITY_ID = 'yandex-map-cleaner';
   const RELEASES_API = 'https://api.github.com/repos/trixxent2k13/motiv/releases';
+
+  const versionEl = document.getElementById('versionDisplay');
+  if (versionEl) versionEl.textContent = 'v' + VERSION;
 
   function compareVersions(a, b) {
     const pa = a.split('.').map(Number);
@@ -303,7 +307,7 @@ if (diagnosticBtn) {
           const el = document.getElementById('update-hint');
           if (el) {
             el.style.display = 'block';
-            el.innerHTML = 'Доступна <a href="' + (release.html_url || '#') + '" target="_blank" style="color:#81c784">v' + latestVer + '</a>';
+            el.innerHTML = 'Доступна <a href="' + (release.html_url || '#') + '" target="_blank">v' + latestVer + '</a>';
           }
         });
       })
