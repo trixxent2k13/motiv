@@ -6,13 +6,15 @@
 (function() {
     'use strict';
 
-    var VERSION = '1.0.004';
+    var VERSION = '1.0.005';
     var UTILITY_ID = 'AETimeTracker';
     var RELEASES_API = 'https://api.github.com/repos/trixxent2k13/motiv/releases';
 
     var POLL_INTERVAL = 1000;
+    var BACKUP_INTERVAL = 30000;
     var csInterface = null;
     var pollTimer = null;
+    var backupTimer = null;
     var debugMode = false;
     var debugLog = [];
     var lastPath = null;
@@ -24,9 +26,12 @@
     var sessionStart = null;
     var paused = false;
     var elapsedAtPause = 0;
+    var showTotal = false;
 
     var statusEl = document.getElementById('status');
     var projectEl = document.getElementById('project');
+    var timerWrap = document.getElementById('timerWrap');
+    var timerModeEl = document.getElementById('timerMode');
     var timerEl = document.getElementById('timer');
     var sessionEl = document.getElementById('session');
     var pauseBtn = document.getElementById('pauseBtn');
@@ -118,13 +123,31 @@
         return Date.now() - sessionStart.getTime();
     }
 
+    function updateTimerDisplay(path, elapsed) {
+        if (!path) {
+            timerModeEl.textContent = 'S';
+            timerEl.textContent = '--:--:--';
+            return;
+        }
+        timerModeEl.textContent = showTotal ? 'T' : 'S';
+        if (showTotal && csInterface) {
+            csInterface.evalScript('$._aett.getTotalSeconds(' + escapeForEval(path) + ')', function(r) {
+                var fileSec = parseInt(r, 10) || 0;
+                var totalMs = fileSec * 1000 + elapsed;
+                timerEl.textContent = formatTime(totalMs);
+            });
+        } else {
+            timerEl.textContent = formatTime(elapsed);
+        }
+    }
+
     function updateUI(path, elapsed) {
         if (path) {
             statusEl.textContent = paused ? 'Пауза' : 'Отслеживание';
             var name = path.split(/[/\\]/).pop();
             projectEl.textContent = name;
             projectEl.title = path;
-            timerEl.textContent = formatTime(elapsed);
+            updateTimerDisplay(path, elapsed);
             timerEl.classList.toggle('paused', paused);
             sessionEl.textContent = paused ? 'Нажмите Продолжить для возобновления' : 'Сессия началась ' + toISOLocal(sessionStart);
             pauseBtn.disabled = false;
@@ -133,6 +156,7 @@
             statusEl.textContent = 'Нет проекта';
             projectEl.textContent = '';
             projectEl.title = '';
+            timerModeEl.textContent = 'S';
             timerEl.textContent = '--:--:--';
             timerEl.classList.remove('paused');
             sessionEl.textContent = '';
@@ -201,16 +225,31 @@
         });
     }
 
+    function doBackup() {
+        if (!lastPath || !sessionStart || !csInterface) return;
+        var end = new Date();
+        var script = '$._aett.savePendingSync(' + escapeForEval(lastPath) + ',' +
+            escapeForEval(toISOLocal(sessionStart)) + ',' +
+            escapeForEval(toISOLocal(end)) + ')';
+        csInterface.evalScript(script, function() {});
+    }
+
     function startPolling() {
         if (pollTimer) return;
         checkProject();
         pollTimer = setInterval(checkProject, POLL_INTERVAL);
+        if (backupTimer) clearInterval(backupTimer);
+        backupTimer = setInterval(doBackup, BACKUP_INTERVAL);
     }
 
     function stopPolling() {
         if (pollTimer) {
             clearInterval(pollTimer);
             pollTimer = null;
+        }
+        if (backupTimer) {
+            clearInterval(backupTimer);
+            backupTimer = null;
         }
     }
 
@@ -280,6 +319,12 @@
         }, 2000);
     };
 
+    timerWrap.onclick = function() {
+        if (!lastPath) return;
+        showTotal = !showTotal;
+        updateTimerDisplay(lastPath, getElapsedMs());
+    };
+
     var tripleClickCount = 0;
     var tripleClickTimer = null;
     statusEl.onclick = function() {
@@ -326,16 +371,51 @@
     startPolling();
     checkUpdate();
 
-    window.addEventListener('beforeunload', function() {
-        if (csInterface && lastPath && sessionStart) {
-            var end = new Date();
-            var dur = Math.floor((paused ? elapsedAtPause : (end - sessionStart)) / 1000);
+    function flushPendingSession() {
+        if (!lastPath || !sessionStart) return;
+        var end = new Date();
+        var dur = Math.floor((paused ? elapsedAtPause : (end - sessionStart)) / 1000);
+        var startStr = toISOLocal(sessionStart);
+        var endStr = toISOLocal(end);
+        if (csInterface) {
+            doBackup();
             csInterface.evalScript('$._aett.logSession(' +
                 escapeForEval(lastPath) + ',' +
-                escapeForEval(toISOLocal(sessionStart)) + ',' +
-                escapeForEval(toISOLocal(end)) + ',' + dur + ')', function() {});
+                escapeForEval(startStr) + ',' +
+                escapeForEval(endStr) + ',' + dur + ')', function() {
+                csInterface.evalScript('$._aett.removePendingSync()', function() {});
+            });
         }
+        try {
+            localStorage.setItem('aett_pending', JSON.stringify({
+                path: lastPath, startTime: startStr, endTime: endStr, duration: dur
+            }));
+        } catch (e) {}
+    }
+
+    window.addEventListener('beforeunload', function() {
+        flushPendingSession();
         stopPolling();
     });
+
+    function replayPendingSession() {
+        if (!csInterface) return;
+        csInterface.evalScript('$._aett.replayPendingIfExists()', function() {});
+        try {
+            var raw = localStorage.getItem('aett_pending');
+            if (!raw) return;
+            var d = JSON.parse(raw);
+            if (!d.path || !d.startTime || !d.endTime || d.duration == null) return;
+            csInterface.evalScript('$._aett.logSession(' +
+                escapeForEval(d.path) + ',' +
+                escapeForEval(d.startTime) + ',' +
+                escapeForEval(d.endTime) + ',' + d.duration + ')', function() {
+                try { localStorage.removeItem('aett_pending'); } catch (e) {}
+                csInterface.evalScript('$._aett.removePendingSync()', function() {});
+            });
+        } catch (e) {}
+    }
+
+    replayPendingSession();
 
 })();

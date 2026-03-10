@@ -10,7 +10,10 @@
         <div class="status" id="status">Нет проекта</div>
         <div class="project" id="project"></div>
         <div class="timer-row">
-            <span class="timer" id="timer">--:--:--</span>
+            <span class="timer-wrap" id="timerWrap" title="Клик: S — сессия, T — суммарное время проекта">
+                <span class="timer-mode" id="timerMode">S</span>
+                <span class="timer" id="timer">--:--:--</span>
+            </span>
             <button type="button" class="btn-pause" id="pauseBtn" title="Приостановить отслеживание">Пауза</button>
         </div>
         <div class="session" id="session"></div>
