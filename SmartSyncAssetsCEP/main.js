@@ -5,7 +5,7 @@
 (function() {
     'use strict';
 
-    var VERSION = '1.0.002';
+    var VERSION = '1.0.003';
     var UTILITY_ID = 'SmartSyncAssetsCEP';
     var HELP_URL = 'https://github.com/trixxent2k13/motiv/tree/main/SmartSyncAssets';
     var FEEDBACK_URL = 'https://forms.yandex.ru/u/696f2eb6068ff088f7e89e2e/?project_key_id=a7Bk2m';

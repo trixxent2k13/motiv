@@ -6,7 +6,7 @@
 (function() {
     'use strict';
 
-    var VERSION = '1.0.002';
+    var VERSION = '1.0.003';
     var UTILITY_ID = 'AETimeTracker';
     var RELEASES_API = 'https://api.github.com/repos/trixxent2k13/motiv/releases';
 
