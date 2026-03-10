@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Yandex Map Cleaner",
-  "version": "1.0.006",
+  "version": "1.0.007",
   "description": "Скрывать и показывать элементы на Яндекс.Картах, переключать темы и управлять боковым меню.",
   "permissions": [
     "storage",
@@ -14,9 +14,7 @@
   "host_permissions": [
     "*://yandex.ru/maps/*",
     "*://yandex.eu/maps/*",
-    "https://yastatic.net/*",
-    "https://api.github.com/*",
-    "https://raw.githubusercontent.com/*"
+    "https://yastatic.net/*"
   ],
   "action": {
     "default_popup": "popup.html",

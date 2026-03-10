@@ -265,18 +265,6 @@ function runDiagnostic() {
   });
 }
 
-// Синхронизация темы popup с картой (перенесено из inline для CSP)
-function applyPopupTheme(theme) {
-  if (theme === 'light') document.documentElement.classList.add('light');
-  else document.documentElement.classList.remove('light');
-  try { localStorage.setItem('ymc-theme', theme); } catch (_) {}
-}
-const savedTheme = (typeof localStorage !== 'undefined') ? localStorage.getItem('ymc-theme') : null;
-if (savedTheme) applyPopupTheme(savedTheme);
-chrome.runtime?.onMessage?.addListener?.((msg) => {
-  if (msg?.type === 'ymc-theme-changed') applyPopupTheme(msg.theme);
-});
-
 const diagnosticBtn = document.getElementById("diagnostic");
 if (diagnosticBtn) {
   diagnosticBtn.addEventListener("click", runDiagnostic);
@@ -284,27 +272,10 @@ if (diagnosticBtn) {
   console.error("Кнопка 'diagnostic' не найдена в popup.html");
 }
 
-// Версия и отображение обновления (проверка в background)
+// Версия из manifest
 (function() {
   const manifest = chrome.runtime.getManifest();
-  const VERSION = (manifest && manifest.version) ? manifest.version : '0.0.0';
-
-  const versionEl = document.getElementById('versionDisplay');
-  if (versionEl) versionEl.textContent = 'v' + VERSION;
-
-  function showUpdate(u) {
-    if (!u || !u.ver) return;
-    const el = document.getElementById('update-hint');
-    if (el) {
-      el.style.display = 'block';
-      el.innerHTML = 'Доступна <a href="' + (u.url || '#') + '" target="_blank">v' + u.ver + '</a>';
-    }
-  }
-
-  if (!chrome?.storage?.local) return;
-  chrome.storage.local.get('ymcUpdate', (data) => { showUpdate(data?.ymcUpdate); });
-  chrome.storage.onChanged.addListener((changes, area) => {
-    if (area === 'local' && changes.ymcUpdate) showUpdate(changes.ymcUpdate.newValue);
-  });
-  chrome.runtime.sendMessage({ type: 'ymcCheckUpdate' });
+  const v = (manifest && manifest.version) ? manifest.version : '0.0.0';
+  const el = document.getElementById('versionDisplay');
+  if (el) el.textContent = 'v' + v;
 })();

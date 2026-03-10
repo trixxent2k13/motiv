@@ -36,14 +36,15 @@ function applyAutoSwitch() {
 }
 
 async function tryAutoSwitch() {
-  if (!chrome?.storage?.session) return;
-  const result = await chrome.storage.session.get('autoSwitch');
-  if (!result.autoSwitch) return;
-  await chrome.storage.session.remove('autoSwitch');
-  applyAutoSwitch();
-  // Повтор через 1.5 и 3 с — карта может подгружаться динамически
-  setTimeout(applyAutoSwitch, 1500);
-  setTimeout(applyAutoSwitch, 3000);
+  try {
+    if (!chrome?.storage?.session) return;
+    const result = await chrome.storage.session.get('autoSwitch');
+    if (!result?.autoSwitch) return;
+    await chrome.storage.session.remove('autoSwitch');
+    applyAutoSwitch();
+    setTimeout(applyAutoSwitch, 1500);
+    setTimeout(applyAutoSwitch, 3000);
+  } catch (_) { /* storage недоступен в content script в части контекстов */ }
 }
 
 // Переключение темы через событие force-theme
