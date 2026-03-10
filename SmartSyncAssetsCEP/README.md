@@ -28,4 +28,4 @@ CEP-версия скрипта синхронизации исходников.
 
 ## Обратная связь
 
-[Форма обратной связи](https://forms.yandex.ru/u/696f2eb6068ff088f7e89e2e/?project_key_id=a7Bk2m)
+[Форма обратной связи](https://forms.yandex.ru/u/696f2eb6068ff088f7e89e2e/?project_key_id=6ouo93)

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ExtensionManifest Version="7.0" ExtensionBundleId="com.trixxent.smartsyncassets" ExtensionBundleVersion="1.0.004" ExtensionBundleName="Smart Sync Assets">
+<ExtensionManifest Version="7.0" ExtensionBundleId="com.trixxent.smartsyncassets" ExtensionBundleVersion="1.0.005" ExtensionBundleName="Smart Sync Assets">
     <ExtensionList>
-        <Extension Id="com.trixxent.smartsyncassets.panel" Version="1.0.004"/>
+        <Extension Id="com.trixxent.smartsyncassets.panel" Version="1.0.005"/>
     </ExtensionList>
     <ExecutionEnvironment>
         <HostList>
