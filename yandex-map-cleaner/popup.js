@@ -265,6 +265,18 @@ function runDiagnostic() {
   });
 }
 
+// Синхронизация темы popup с картой (перенесено из inline для CSP)
+function applyPopupTheme(theme) {
+  if (theme === 'light') document.documentElement.classList.add('light');
+  else document.documentElement.classList.remove('light');
+  try { localStorage.setItem('ymc-theme', theme); } catch (_) {}
+}
+const savedTheme = (typeof localStorage !== 'undefined') ? localStorage.getItem('ymc-theme') : null;
+if (savedTheme) applyPopupTheme(savedTheme);
+chrome.runtime?.onMessage?.addListener?.((msg) => {
+  if (msg?.type === 'ymc-theme-changed') applyPopupTheme(msg.theme);
+});
+
 const diagnosticBtn = document.getElementById("diagnostic");
 if (diagnosticBtn) {
   diagnosticBtn.addEventListener("click", runDiagnostic);
@@ -272,47 +284,27 @@ if (diagnosticBtn) {
   console.error("Кнопка 'diagnostic' не найдена в popup.html");
 }
 
-// Версия и проверка обновлений
+// Версия и отображение обновления (проверка в background)
 (function() {
   const manifest = chrome.runtime.getManifest();
   const VERSION = (manifest && manifest.version) ? manifest.version : '0.0.0';
-  const UTILITY_ID = 'yandex-map-cleaner';
-  const RELEASES_API = 'https://api.github.com/repos/trixxent2k13/motiv/releases';
 
   const versionEl = document.getElementById('versionDisplay');
   if (versionEl) versionEl.textContent = 'v' + VERSION;
 
-  function compareVersions(a, b) {
-    const pa = a.split('.').map(Number);
-    const pb = b.split('.').map(Number);
-    for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
-      const na = pa[i] || 0;
-      const nb = pb[i] || 0;
-      if (na > nb) return 1;
-      if (na < nb) return -1;
+  function showUpdate(u) {
+    if (!u || !u.ver) return;
+    const el = document.getElementById('update-hint');
+    if (el) {
+      el.style.display = 'block';
+      el.innerHTML = 'Доступна <a href="' + (u.url || '#') + '" target="_blank">v' + u.ver + '</a>';
     }
-    return 0;
   }
 
-  function checkUpdate() {
-    fetch(RELEASES_API + '/latest')
-      .then(r => r.json())
-      .then(release => {
-        const assets = release.assets || [];
-        const vjAsset = assets.find(a => (a.name || '') === 'versions.json');
-        if (!vjAsset) return;
-        return fetch(vjAsset.browser_download_url).then(r => r.json()).then(vers => {
-          const latestVer = vers[UTILITY_ID];
-          if (!latestVer || compareVersions(latestVer, VERSION) <= 0) return;
-          const el = document.getElementById('update-hint');
-          if (el) {
-            el.style.display = 'block';
-            el.innerHTML = 'Доступна <a href="' + (release.html_url || '#') + '" target="_blank">v' + latestVer + '</a>';
-          }
-        });
-      })
-      .catch(() => {});
-  }
-
-  checkUpdate();
+  if (!chrome?.storage?.local) return;
+  chrome.storage.local.get('ymcUpdate', (data) => { showUpdate(data?.ymcUpdate); });
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === 'local' && changes.ymcUpdate) showUpdate(changes.ymcUpdate.newValue);
+  });
+  chrome.runtime.sendMessage({ type: 'ymcCheckUpdate' });
 })();

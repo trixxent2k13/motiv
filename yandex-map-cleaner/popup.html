@@ -240,27 +240,5 @@
   <pre id="diagnostic-output"></pre>
 
   <script src="popup.js"></script>
-  <script>
-    // Синхронизируем тему popup с картой
-    function applyPopupTheme(theme) {
-      if (theme === 'light') {
-        document.documentElement.classList.add('light');
-      } else {
-        document.documentElement.classList.remove('light');
-      }
-      localStorage.setItem('ymc-theme', theme);
-    }
-
-    // Восстанавливаем тему из прошлой сессии
-    const saved = localStorage.getItem('ymc-theme');
-    if (saved) applyPopupTheme(saved);
-
-    // Слушаем сообщения от content script
-    chrome.runtime.onMessage.addListener((msg) => {
-      if (msg.type === 'ymc-theme-changed') {
-        applyPopupTheme(msg.theme);
-      }
-    });
-  </script>
 </body>
 </html>

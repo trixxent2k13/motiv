@@ -36,6 +36,7 @@ function applyAutoSwitch() {
 }
 
 async function tryAutoSwitch() {
+  if (!chrome?.storage?.session) return;
   const result = await chrome.storage.session.get('autoSwitch');
   if (!result.autoSwitch) return;
   await chrome.storage.session.remove('autoSwitch');

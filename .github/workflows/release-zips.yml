@@ -53,3 +53,16 @@ jobs:
           done
           cp out/versions.json .
           gh release upload "$TAG" *.zip versions.json --clobber
+
+      - name: Push versions.json to main (for raw.githubusercontent.com)
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin main
+          git checkout main
+          cp out/versions.json .
+          git add versions.json
+          git diff --staged --quiet || git commit -m "chore: update versions.json from release $TAG"
+          git push origin main || true

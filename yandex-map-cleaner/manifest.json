@@ -4,6 +4,7 @@
   "version": "1.0.006",
   "description": "Скрывать и показывать элементы на Яндекс.Картах, переключать темы и управлять боковым меню.",
   "permissions": [
+    "storage",
     "scripting",
     "activeTab",
     "declarativeNetRequest",
@@ -14,7 +15,8 @@
     "*://yandex.ru/maps/*",
     "*://yandex.eu/maps/*",
     "https://yastatic.net/*",
-    "https://api.github.com/*"
+    "https://api.github.com/*",
+    "https://raw.githubusercontent.com/*"
   ],
   "action": {
     "default_popup": "popup.html",
