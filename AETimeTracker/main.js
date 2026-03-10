@@ -213,32 +213,40 @@
     }
 
     function checkUpdate() {
-        if (!window.XMLHttpRequest) return;
+        if (!window.XMLHttpRequest || !updateHintEl) return;
         var xhr = new XMLHttpRequest();
-        xhr.open('GET', RELEASES_API, true);
+        xhr.open('GET', RELEASES_API + '/latest', true);
         xhr.onreadystatechange = function() {
             if (xhr.readyState !== 4) return;
             try {
-                var releases = JSON.parse(xhr.responseText || '[]');
-                var prefix = UTILITY_ID + '-v';
-                var latest = null;
-                for (var i = 0; i < releases.length; i++) {
-                    var t = (releases[i].tag_name || '');
-                    if (t.indexOf(prefix) === 0) {
-                        latest = releases[i];
+                var release = JSON.parse(xhr.responseText || '{}');
+                var assets = release.assets || [];
+                var vj = null;
+                for (var i = 0; i < assets.length; i++) {
+                    if ((assets[i].name || '') === 'versions.json') {
+                        vj = assets[i].browser_download_url;
                         break;
                     }
                 }
-                if (!latest || !updateHintEl) return;
-                var tag = (latest.tag_name || '').replace(/^.*-v/, '');
-                if (tag && compareVersions(tag, VERSION) > 0) {
-                    updateHintEl.style.display = 'inline';
-                    updateHintEl.innerHTML = ' · Доступна <a href="#">v' + tag + '</a>';
-                    updateHintEl.querySelector('a').onclick = function(e) {
-                        e.preventDefault();
-                        if (csInterface) csInterface.openURLInDefaultBrowser(latest.html_url || '');
-                    };
-                }
+                if (!vj) return;
+                var xhr2 = new XMLHttpRequest();
+                xhr2.open('GET', vj, true);
+                xhr2.onreadystatechange = function() {
+                    if (xhr2.readyState !== 4) return;
+                    try {
+                        var vers = JSON.parse(xhr2.responseText || '{}');
+                        var latestVer = vers[UTILITY_ID];
+                        if (latestVer && compareVersions(latestVer, VERSION) > 0) {
+                            updateHintEl.style.display = 'inline';
+                            updateHintEl.innerHTML = ' · Доступна <a href="#">v' + latestVer + '</a>';
+                            updateHintEl.querySelector('a').onclick = function(e) {
+                                e.preventDefault();
+                                if (csInterface) csInterface.openURLInDefaultBrowser(release.html_url || '');
+                            };
+                        }
+                    } catch (e) {}
+                };
+                xhr2.send();
             } catch (e) {}
         };
         xhr.send();

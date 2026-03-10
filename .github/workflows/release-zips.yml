@@ -1,7 +1,6 @@
-# Создаёт ZIP и прикрепляет к релизу.
-# Формат тега: UtilityName-v1.0.001 — зипуется только эта папка.
-# Легаси (v1.0 без префикса) — зипуются все папки.
-# Триггер: gh release create AETimeTracker-v1.0.002 ...
+# Один релиз = все ZIP + versions.json с версиями утилит.
+# Триггер: gh release create v1.0.003 ...
+# Панели проверяют updates через versions.json в assets.
 
 name: Release ZIPs
 
@@ -18,27 +17,37 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Create and upload ZIP
+      - name: Extract versions and create versions.json
+        run: |
+          mkdir -p out
+          entries=""
+          for dir in AETimeTracker SmartSyncAssetsCEP yandex-map-cleaner; do
+            if [[ ! -d "$dir" ]]; then continue; fi
+            ver="0.0.0"
+            if [[ -f "$dir/CSXS/manifest.xml" ]]; then
+              ver=$(sed -n 's/.*ExtensionBundleVersion="\([^"]*\)".*/\1/p' "$dir/CSXS/manifest.xml" | head -1)
+            fi
+            if [[ -z "$ver" || "$ver" == *"ExtensionBundleVersion"* ]] && [[ -f "$dir/manifest.json" ]]; then
+              ver=$(sed -n 's/.*"version"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p' "$dir/manifest.json" | head -1)
+            fi
+            [[ -z "$ver" ]] && ver="0.0.0"
+            [[ -n "$entries" ]] && entries="$entries,"
+            entries="$entries\"$dir\":\"$ver\""
+          done
+          echo "{$entries}" > out/versions.json
+          cat out/versions.json
+
+      - name: Create ZIPs and upload
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ github.event.release.tag_name }}
         run: |
-          if [[ "$TAG" =~ ^([A-Za-z0-9_-]+)-v[0-9] ]]; then
-            dir="${BASH_REMATCH[1]}"
-            if [[ -d "$dir" ]] && [[ "$dir" != ".github" ]]; then
-              zip -r "${dir}.zip" "$dir"
-              gh release upload "$TAG" "${dir}.zip" --clobber
-              echo "Uploaded ${dir}.zip for $TAG"
-            else
-              echo "Folder $dir not found"
-              exit 1
-            fi
-          else
-            for d in */; do
-              name="${d%/}"
-              [[ "$name" == .* ]] && continue
-              [[ "$name" == "node_modules" ]] && continue
-              zip -r "${name}.zip" "$name"
-              gh release upload "$TAG" "${name}.zip" --clobber
-            done
-          fi
+          for d in */; do
+            name="${d%/}"
+            [[ "$name" == .* ]] && continue
+            [[ "$name" == "node_modules" ]] && continue
+            [[ "$name" == "out" ]] && continue
+            zip -r "${name}.zip" "$name"
+          done
+          cp out/versions.json .
+          gh release upload "$TAG" *.zip versions.json --clobber

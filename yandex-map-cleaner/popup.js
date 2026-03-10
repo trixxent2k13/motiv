@@ -291,20 +291,21 @@ if (diagnosticBtn) {
   }
 
   function checkUpdate() {
-    fetch(RELEASES_API)
+    fetch(RELEASES_API + '/latest')
       .then(r => r.json())
-      .then(releases => {
-        const prefix = UTILITY_ID + '-v';
-        const latest = releases.find(r => (r.tag_name || '').startsWith(prefix));
-        if (!latest) return;
-        const tag = (latest.tag_name || '').replace(/^.*-v/, '');
-        if (tag && compareVersions(tag, VERSION) > 0) {
+      .then(release => {
+        const assets = release.assets || [];
+        const vjAsset = assets.find(a => (a.name || '') === 'versions.json');
+        if (!vjAsset) return;
+        return fetch(vjAsset.browser_download_url).then(r => r.json()).then(vers => {
+          const latestVer = vers[UTILITY_ID];
+          if (!latestVer || compareVersions(latestVer, VERSION) <= 0) return;
           const el = document.getElementById('update-hint');
           if (el) {
             el.style.display = 'block';
-            el.innerHTML = 'Доступна <a href="' + (latest.html_url || '#') + '" target="_blank" style="color:#81c784">v' + tag + '</a>';
+            el.innerHTML = 'Доступна <a href="' + (release.html_url || '#') + '" target="_blank" style="color:#81c784">v' + latestVer + '</a>';
           }
-        }
+        });
       })
       .catch(() => {});
   }

@@ -62,30 +62,38 @@
     function checkUpdate() {
         if (!window.XMLHttpRequest) return;
         var xhr = new XMLHttpRequest();
-        xhr.open('GET', RELEASES_API, true);
+        xhr.open('GET', RELEASES_API + '/latest', true);
         xhr.onreadystatechange = function() {
             if (xhr.readyState !== 4) return;
             try {
-                var releases = JSON.parse(xhr.responseText || '[]');
-                var prefix = UTILITY_ID + '-v';
-                var latest = null;
-                for (var i = 0; i < releases.length; i++) {
-                    var t = (releases[i].tag_name || '');
-                    if (t.indexOf(prefix) === 0) {
-                        latest = releases[i];
+                var release = JSON.parse(xhr.responseText || '{}');
+                var assets = release.assets || [];
+                var vjUrl = null;
+                for (var i = 0; i < assets.length; i++) {
+                    if ((assets[i].name || '') === 'versions.json') {
+                        vjUrl = assets[i].browser_download_url;
                         break;
                     }
                 }
-                if (!latest) return;
-                var tag = (latest.tag_name || '').replace(/^.*-v/, '');
-                if (tag && compareVersions(tag, VERSION) > 0) {
-                    updateHint.style.display = 'inline';
-                    updateHint.innerHTML = 'Доступна <a href="#">v' + tag + '</a>';
-                    updateHint.querySelector('a').onclick = function(e) {
-                        e.preventDefault();
-                        if (csInterface) csInterface.openURLInDefaultBrowser(latest.html_url || '');
-                    };
-                }
+                if (!vjUrl) return;
+                var xhr2 = new XMLHttpRequest();
+                xhr2.open('GET', vjUrl, true);
+                xhr2.onreadystatechange = function() {
+                    if (xhr2.readyState !== 4) return;
+                    try {
+                        var vers = JSON.parse(xhr2.responseText || '{}');
+                        var latestVer = vers[UTILITY_ID];
+                        if (latestVer && compareVersions(latestVer, VERSION) > 0) {
+                            updateHint.style.display = 'inline';
+                            updateHint.innerHTML = 'Доступна <a href="#">v' + latestVer + '</a>';
+                            updateHint.querySelector('a').onclick = function(e) {
+                                e.preventDefault();
+                                if (csInterface) csInterface.openURLInDefaultBrowser(release.html_url || '');
+                            };
+                        }
+                    } catch (e) {}
+                };
+                xhr2.send();
             } catch (e) {}
         };
         xhr.send();
