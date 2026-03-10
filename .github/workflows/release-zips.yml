@@ -1,6 +1,8 @@
 # Создаёт ZIP каждой утилиты и прикрепляет к релизу.
 # Триггер: публикация релиза (Release → Create new release → Publish).
 # ZIP-архивы появятся в Assets релиза.
+# Если ошибка "Resource not accessible": Settings → Actions → General →
+#   Workflow permissions → Read and write permissions.
 
 name: Release ZIPs
 
@@ -8,11 +10,12 @@ on:
   release:
     types: [published]
 
+permissions:
+  contents: write
+
 jobs:
   zip-and-upload:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write  # нужно для загрузки assets в релиз
     steps:
       - uses: actions/checkout@v4
 
@@ -27,10 +30,9 @@ jobs:
           done
 
       - name: Upload ZIPs to release
-        uses: softprops/action-gh-release@v2
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.event.release.tag_name }}
-          files: |
-            *.zip
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          for f in *.zip; do
+            gh release upload "${{ github.event.release.tag_name }}" "$f" --clobber
+          done
