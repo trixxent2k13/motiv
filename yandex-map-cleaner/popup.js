@@ -271,3 +271,43 @@ if (diagnosticBtn) {
 } else {
   console.error("Кнопка 'diagnostic' не найдена в popup.html");
 }
+
+// Проверка обновлений
+(function() {
+  const VERSION = '1.0.001';
+  const UTILITY_ID = 'yandex-map-cleaner';
+  const RELEASES_API = 'https://api.github.com/repos/trixxent2k13/motiv/releases';
+
+  function compareVersions(a, b) {
+    const pa = a.split('.').map(Number);
+    const pb = b.split('.').map(Number);
+    for (let i = 0; i < Math.max(pa.length, pb.length); i++) {
+      const na = pa[i] || 0;
+      const nb = pb[i] || 0;
+      if (na > nb) return 1;
+      if (na < nb) return -1;
+    }
+    return 0;
+  }
+
+  function checkUpdate() {
+    fetch(RELEASES_API)
+      .then(r => r.json())
+      .then(releases => {
+        const prefix = UTILITY_ID + '-v';
+        const latest = releases.find(r => (r.tag_name || '').startsWith(prefix));
+        if (!latest) return;
+        const tag = (latest.tag_name || '').replace(/^.*-v/, '');
+        if (tag && compareVersions(tag, VERSION) > 0) {
+          const el = document.getElementById('update-hint');
+          if (el) {
+            el.style.display = 'block';
+            el.innerHTML = 'Доступна <a href="' + (latest.html_url || '#') + '" target="_blank" style="color:#81c784">v' + tag + '</a>';
+          }
+        }
+      })
+      .catch(() => {});
+  }
+
+  checkUpdate();
+})();

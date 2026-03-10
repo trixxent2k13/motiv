@@ -6,6 +6,10 @@
 (function() {
     'use strict';
 
+    var VERSION = '1.0.001';
+    var UTILITY_ID = 'AETimeTracker';
+    var RELEASES_API = 'https://api.github.com/repos/trixxent2k13/motiv/releases';
+
     var POLL_INTERVAL = 1000;
     var csInterface = null;
     var pollTimer = null;
@@ -29,6 +33,7 @@
     var debugPanelEl = document.getElementById('debugPanel');
     var debugLogEl = document.getElementById('debugLog');
     var debugCopyBtn = document.getElementById('debugCopy');
+    var updateHintEl = document.getElementById('updateHint');
 
     function debug(msg) {
         var d = new Date();
@@ -207,6 +212,50 @@
         }
     }
 
+    function checkUpdate() {
+        if (!window.XMLHttpRequest) return;
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', RELEASES_API, true);
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState !== 4) return;
+            try {
+                var releases = JSON.parse(xhr.responseText || '[]');
+                var prefix = UTILITY_ID + '-v';
+                var latest = null;
+                for (var i = 0; i < releases.length; i++) {
+                    var t = (releases[i].tag_name || '');
+                    if (t.indexOf(prefix) === 0) {
+                        latest = releases[i];
+                        break;
+                    }
+                }
+                if (!latest || !updateHintEl) return;
+                var tag = (latest.tag_name || '').replace(/^.*-v/, '');
+                if (tag && compareVersions(tag, VERSION) > 0) {
+                    updateHintEl.style.display = 'inline';
+                    updateHintEl.innerHTML = ' · Доступна <a href="#">v' + tag + '</a>';
+                    updateHintEl.querySelector('a').onclick = function(e) {
+                        e.preventDefault();
+                        if (csInterface) csInterface.openURLInDefaultBrowser(latest.html_url || '');
+                    };
+                }
+            } catch (e) {}
+        };
+        xhr.send();
+    }
+
+    function compareVersions(a, b) {
+        var pa = a.split('.').map(Number);
+        var pb = b.split('.').map(Number);
+        for (var i = 0; i < Math.max(pa.length, pb.length); i++) {
+            var na = pa[i] || 0;
+            var nb = pb[i] || 0;
+            if (na > nb) return 1;
+            if (na < nb) return -1;
+        }
+        return 0;
+    }
+
     var feedbackUrl = 'https://forms.yandex.ru/u/696f2eb6068ff088f7e89e2e/?project_key_id=4gxaft';
     document.getElementById('feedback').href = feedbackUrl;
     document.getElementById('feedback').onclick = function(e) {
@@ -265,6 +314,7 @@
         csInterface.addEventListener(CSInterface.THEME_COLOR_CHANGED_EVENT, function() {});
     }
     startPolling();
+    checkUpdate();
 
     window.addEventListener('beforeunload', function() {
         if (csInterface && lastPath && sessionStart) {
