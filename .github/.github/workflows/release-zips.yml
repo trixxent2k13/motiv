@@ -1,0 +1,36 @@
+# Создаёт ZIP каждой утилиты и прикрепляет к релизу.
+# Триггер: публикация релиза (Release → Create new release → Publish).
+# ZIP-архивы появятся в Assets релиза.
+
+name: Release ZIPs
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  zip-and-upload:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # нужно для загрузки assets в релиз
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create ZIP for each utility
+        run: |
+          for dir in */; do
+            name="${dir%/}"
+            # Пропускаем служебные папки
+            [[ "$name" == .* ]] && continue
+            [[ "$name" == "node_modules" ]] && continue
+            zip -r "${name}.zip" "$name"
+          done
+
+      - name: Upload ZIPs to release
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.event.release.tag_name }}
+          files: |
+            *.zip
